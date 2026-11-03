@@ -1,6 +1,6 @@
-import { ExplanationService } from "../../../ai/src/services/explanation.service.js";
-import type { DecisionContext } from "../../../ai/src/prompts/decision.prompt.js";
-import type { DecisionExplanation } from "../../../ai/src/validation/explanation.schema.js";
+import { ExplanationService } from "./ai/explanation.service.js";
+import type { DecisionContext } from "./ai/decision.prompt.js";
+import type { DecisionExplanation } from "./ai/explanation.schema.js";
 
 const explanationService = new ExplanationService();
 
@@ -9,4 +9,3 @@ export async function generateDecisionExplanation(context: DecisionContext): Pro
 }
 
 export type { DecisionContext, DecisionExplanation };
-
