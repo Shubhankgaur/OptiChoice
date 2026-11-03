@@ -207,3 +207,55 @@
     transform: none;
   }
 }
+
+@media print {
+  @page {
+    size: letter portrait;
+    margin: 18mm 18mm 18mm 18mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Hide all SPA chrome, headers, navigation bars, and buttons */
+  header,
+  nav,
+  aside,
+  button,
+  .no-print,
+  [role="navigation"],
+  .decision-tile,
+  .toaster {
+    display: none !important;
+  }
+
+  /* Ensure report sections never get cut in half across pages */
+  h1, h2, h3, h4,
+  tr,
+  .section,
+  .avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: auto;
+  }
+
+  table {
+    page-break-inside: auto;
+  }
+
+  #printable-executive-report {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+}

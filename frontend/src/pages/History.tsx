@@ -1,13 +1,84 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, CalendarClock, Layers3, Plus, Trophy } from "lucide-react";
+import { ArrowUpRight, CalendarClock, Layers3, Plus, Trophy, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/Header";
 import { PageBody } from "@/components/layout/AppLayout";
 import { EmptyState, ErrorState, LoadingState } from "@/components/ui/states";
-import { decisionService } from "@/services/decisionService";
+import { decisionService, type DecisionExplanation } from "@/services/decisionService";
 import { DeleteSavedItemButton } from "@/components/decisions/DeleteSavedItemButton";
+import { ExecutiveReport } from "@/components/decisions/ExecutiveReport";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+
+function HistoryItemReport({ decisionId, title, description, winnerName, winnerScore, ranking, criteria }: {
+  decisionId: string;
+  title: string;
+  description?: string | undefined;
+  winnerName?: string | undefined;
+  winnerScore?: number | undefined;
+  ranking?: any;
+  criteria?: any;
+}) {
+  const [explanation, setExplanation] = useState<DecisionExplanation | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleReport = async () => {
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+    setIsOpen(true);
+    if (!explanation) {
+      setLoading(true);
+      try {
+        const exp = await decisionService.getExplanation(decisionId);
+        setExplanation(exp);
+      } catch (err) {
+        console.error("Failed to load explanation:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  return (
+    <div className="mt-3">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={toggleReport}
+        className="gap-1.5 text-xs font-medium text-primary hover:bg-primary-soft hover:text-primary"
+      >
+        <Sparkles className="h-3.5 w-3.5" />
+        {isOpen ? "Hide AI Report" : "View AI Executive Report"}
+      </Button>
+
+      {isOpen && (
+        <div className="mt-2">
+          {loading && (
+            <div className="flex items-center gap-2 p-3 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+              Generating Executive Report...
+            </div>
+          )}
+          {explanation && (
+            <ExecutiveReport
+              decisionTitle={title}
+              decisionDescription={description}
+              explanation={explanation}
+              winnerName={winnerName}
+              winnerScore={winnerScore}
+              ranking={ranking}
+              criteria={criteria}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function History() {
   const { user } = useAuth();
@@ -68,6 +139,15 @@ export default function History() {
                             })}
                           </div>
                         </details>
+                        <HistoryItemReport
+                          decisionId={decision.id}
+                          title={decision.title}
+                          description={decision.description}
+                          winnerName={winner?.alternativeName}
+                          winnerScore={winner?.score}
+                          ranking={decision.ranking}
+                          criteria={decision.criteria}
+                        />
                         <div className="mt-4 flex justify-end border-t pt-3">
                           <Link to="/decisions/new" className="inline-flex items-center gap-1 text-sm font-medium text-primary">Start another <ArrowUpRight className="h-4 w-4" /></Link>
                         </div>

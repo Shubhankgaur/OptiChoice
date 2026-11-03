@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ChevronRight, Trophy } from "lucide-react";
 import { StatusBadge } from "@/components/ui/states";
 import type { Decision } from "@/types/decision";
@@ -27,12 +28,13 @@ export function DecisionRow({ decision }: { decision: Decision }) {
       </div>
       <div className="flex items-center justify-between gap-3 sm:w-36 sm:justify-end">
         <StatusBadge status={decision.status} />
-        <button
+        <Link
+          to={decision.status === "draft" ? "/decisions/workspace" : "/history"}
           className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-background hover:text-foreground"
           aria-label={`View ${decision.title}`}
         >
           View <ChevronRight className="h-3.5 w-3.5" />
-        </button>
+        </Link>
       </div>
     </li>
   );

@@ -85,6 +85,32 @@ export function listDecisions(userId: string): SavedDecision[] {
   });
 }
 
+export function getDecision(id: string, userId: string): SavedDecision | null {
+  const row = database.prepare(`
+    SELECT id, title, description, alternatives_json, criteria_json, ratings_json,
+      ranking_json, breakdown_json, scoring_mode, created_at
+    FROM decisions
+    WHERE id = ? AND user_id = ?
+  `).get(id, userId);
+
+  if (!row) return null;
+  const saved = row as Record<string, string>;
+  return {
+    id: saved["id"]!,
+    title: saved["title"]!,
+    description: saved["description"]!,
+    status: "completed",
+    scoringMode: (saved["scoring_mode"] ?? "rating") as "rating" | "relative",
+    createdAt: saved["created_at"]!,
+    updatedAt: saved["created_at"]!,
+    alternatives: JSON.parse(saved["alternatives_json"]!),
+    criteria: JSON.parse(saved["criteria_json"]!),
+    ratings: JSON.parse(saved["ratings_json"]!),
+    ranking: JSON.parse(saved["ranking_json"]!),
+    breakdown: JSON.parse(saved["breakdown_json"]!),
+  };
+}
+
 export function deleteDecision(id: string, userId: string): boolean {
   return database.prepare("DELETE FROM decisions WHERE id = ? AND user_id = ?").run(id, userId).changes > 0;
 }

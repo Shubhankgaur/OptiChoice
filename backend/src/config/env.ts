@@ -6,6 +6,7 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 
 export const env = {
   port,
+  databaseUrl: process.env.DATABASE_URL,
   frontendOrigin: process.env.FRONTEND_ORIGIN ?? "http://localhost:8081",
   databasePath: process.env.DATABASE_PATH ?? "./data/optichoice.sqlite",
   appBaseUrl: process.env.APP_BASE_URL ?? "http://localhost:8081",

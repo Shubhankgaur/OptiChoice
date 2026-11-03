@@ -4,6 +4,7 @@ import {
   deleteDecisionController,
   deleteDraftController,
   evaluateDecisionController,
+  explainDecisionController,
   getDraftController,
   listDecisionsController,
   listDraftsController,
@@ -20,3 +21,6 @@ decisionRoutes.get("/decisions/drafts/:id", getDraftController);
 decisionRoutes.put("/decisions/drafts/:id", updateDraftController);
 decisionRoutes.delete("/decisions/drafts/:id", deleteDraftController);
 decisionRoutes.post("/decisions/evaluate", evaluateDecisionController);
+decisionRoutes.get("/decisions/:id/explain", explainDecisionController);
+decisionRoutes.post("/decisions/explain", explainDecisionController);
+

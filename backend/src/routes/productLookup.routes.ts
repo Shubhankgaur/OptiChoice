@@ -1,7 +1,14 @@
 import { Router } from "express";
 import { env } from "../config/env.js";
+import { createRateLimiter } from "../middleware/rateLimiter.js";
 
 export const productLookupRoutes = Router();
+
+const productSearchLimiter = createRateLimiter({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 30, // 30 queries per 5 min
+  message: "Too many product search requests. Please wait a moment before searching again.",
+});
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === "object" ? value as Record<string, unknown> : null;
@@ -139,8 +146,8 @@ async function findManufacturerSpecs(title: string) {
   return { batteryText, batteryUrl, weightText, weightUrl };
 }
 
-productLookupRoutes.get("/products/:productId/specifications", async (request, response) => {
-  const productId = request.params.productId;
+productLookupRoutes.get("/products/:productId/specifications", productSearchLimiter, async (request, response) => {
+  const productId = typeof request.params["productId"] === "string" ? request.params["productId"] : "";
   if (!/^[\w-]{1,180}$/.test(productId)) {
     response.status(400).json({ error: { code: "INVALID_PRODUCT", message: "This product cannot be looked up." } });
     return;
@@ -198,7 +205,7 @@ productLookupRoutes.get("/products/:productId/specifications", async (request, r
   }
 });
 
-productLookupRoutes.get("/products/search", async (request, response) => {
+productLookupRoutes.get("/products/search", productSearchLimiter, async (request, response) => {
   const query = typeof request.query.q === "string" ? request.query.q.trim() : "";
   if (query.length < 2 || query.length > 120) {
     response.status(400).json({ error: { code: "INVALID_QUERY", message: "Enter a product search between 2 and 120 characters." } });

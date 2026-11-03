@@ -171,7 +171,7 @@ export default function Profile() {
                   </Field>
                 </div>
                 {profileError && <ErrorState message={profileError} />}
-                {profileSaved && <p role="status" className="text-sm font-medium text-success">Your name has been updated.</p>}
+                {profileSaved && <p role="status" className="text-sm font-medium text-success">Your profile has been updated.</p>}
                 <div className="flex justify-end"><Button type="submit" disabled={profileSaving || !name.trim()}>{profileSaving ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : <><Save className="h-4 w-4" /> Save profile</>}</Button></div>
               </form>
             </section>

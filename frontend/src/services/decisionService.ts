@@ -55,6 +55,13 @@ export interface ProductSpecifications {
   fetchedAt: string;
 }
 
+export interface DecisionExplanation {
+  summary: string;
+  winnerRationale: string;
+  tradeOffs: string[];
+  caveats?: string[];
+}
+
 const LAST_RESULT_KEY = "optichoice.lastResult";
 
 export const decisionService = {
@@ -116,6 +123,17 @@ export const decisionService = {
       ratings: req.ratings,
       scoringMode: req.scoringMode,
     });
+  },
+  async getExplanation(decisionId: string): Promise<DecisionExplanation> {
+    const res = await request<{ explanation: DecisionExplanation }>(`/decisions/${decisionId}/explain`);
+    return res.explanation;
+  },
+  async generateExplanation(payload: object): Promise<DecisionExplanation> {
+    const res = await request<{ explanation: DecisionExplanation }>("/decisions/explain", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    return res.explanation;
   },
 };
 

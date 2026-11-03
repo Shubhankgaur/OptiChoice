@@ -13,8 +13,9 @@ import { CriteriaTable } from "@/components/criteria/CriteriaTable";
 import { WeightEditor } from "@/components/criteria/WeightEditor";
 import { RatingMatrix, isValidValue } from "@/components/decisions/RatingMatrix";
 import { WhatIfAnalysis } from "@/components/decisions/WhatIfAnalysis";
+import { ExecutiveReport } from "@/components/decisions/ExecutiveReport";
 import { useDecision, type DecisionDraft } from "@/hooks/useDecision";
-import { decisionService, type EvaluateResponse } from "@/services/decisionService";
+import { decisionService, type EvaluateResponse, type DecisionExplanation } from "@/services/decisionService";
 
 const STEPS = ["Decision", "Alternatives", "Criteria", "Weights", "Values", "Review"];
 
@@ -67,6 +68,8 @@ export default function DecisionWorkspace() {
   const [editingInfo, setEditingInfo] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [result, setResult] = useState<EvaluateResponse | null>(null);
+  const [explanation, setExplanation] = useState<DecisionExplanation | null>(null);
+  const [explanationLoading, setExplanationLoading] = useState(false);
 
   useEffect(() => {
     if (!api.ready) return;
@@ -112,6 +115,16 @@ export default function DecisionWorkspace() {
       api.completeDraft();
       setResult(res);
       setStatus("idle");
+
+      setExplanationLoading(true);
+      try {
+        const exp = await decisionService.getExplanation(res.decisionId);
+        setExplanation(exp);
+      } catch (err) {
+        console.warn("Could not load AI explanation:", err);
+      } finally {
+        setExplanationLoading(false);
+      }
     } catch {
       setStatus("error");
     }
@@ -236,6 +249,26 @@ export default function DecisionWorkspace() {
                       })}
                     </div>
                   </details>
+
+                  {explanationLoading && (
+                    <div className="mt-5 rounded-2xl border bg-card p-6 flex items-center justify-center gap-3 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      <span>Synthesizing AI Executive Report...</span>
+                    </div>
+                  )}
+
+                  {explanation && (
+                    <ExecutiveReport
+                      decisionTitle={draft.title}
+                      decisionDescription={draft.description}
+                      explanation={explanation}
+                      winnerName={result.ranking[0]?.alternativeName}
+                      winnerScore={result.ranking[0]?.score}
+                      ranking={result.ranking}
+                      criteria={draft.criteria}
+                    />
+                  )}
+
                   {draft.criteria.length > 1 && <WhatIfAnalysis
                     key={result.decisionId}
                     input={{
