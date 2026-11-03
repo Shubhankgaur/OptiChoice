@@ -35,3 +35,4 @@ export function validateExplanation(data: unknown): DecisionExplanation {
     caveats,
   };
 }
+

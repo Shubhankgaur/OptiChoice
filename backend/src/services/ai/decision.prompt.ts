@@ -66,3 +66,4 @@ Please provide an objective explanation of this result according to the JSON sch
 
   return { systemPrompt, userPrompt };
 }
+
